@@ -45,6 +45,10 @@ build/
 .env.local
 .env.*.local
 
+# Local Control Documents (not committed)
+ARCHITECTURE.md
+HANDOFF.md
+
 # Docker
 .dockerignore
 
