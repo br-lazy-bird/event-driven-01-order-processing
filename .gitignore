@@ -48,6 +48,7 @@ build/
 # Local Control Documents (not committed)
 ARCHITECTURE.md
 HANDOFF.md
+TRADEOFF.md
 
 # Docker
 .dockerignore
@@ -55,3 +56,6 @@ HANDOFF.md
 # OS
 .DS_Store
 Thumbs.db
+
+# Github
+.github
