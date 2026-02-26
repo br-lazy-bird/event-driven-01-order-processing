@@ -1,7 +1,9 @@
+include .env
+
 # Docker compose configuration
 DOCKER_DIR = docker
 COMPOSE_FILE = $(DOCKER_DIR)/compose.yaml
-ENV_FILE = .env.development
+ENV_FILE = .env
 
 .PHONY: help db-shell build run stop logs clean
 
@@ -20,7 +22,7 @@ help:
 
 db-shell:
 	@echo "Opening PostgreSQL shell..."
-	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) exec db psql -U lazybird_dev -d order_processing_dev
+	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) exec db psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
 
 build:
 	@echo "Building and starting services..."

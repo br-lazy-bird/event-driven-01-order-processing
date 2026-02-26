@@ -49,6 +49,7 @@ build/
 ARCHITECTURE.md
 HANDOFF.md
 TRADEOFF.md
+LEARNINGS.md
 
 # Docker
 .dockerignore

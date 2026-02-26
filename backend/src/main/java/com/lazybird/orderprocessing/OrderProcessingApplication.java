@@ -1,5 +1,6 @@
 package com.lazybird.orderprocessing;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -8,6 +9,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @SpringBootApplication(scanBasePackages = "com.lazybird")
 public class OrderProcessingApplication {
+
+    @Value("${cors.allowed-origins}")
+    private String allowedOrigins;
 
     public static void main(String[] args) {
         SpringApplication.run(OrderProcessingApplication.class, args);
@@ -19,7 +23,7 @@ public class OrderProcessingApplication {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:3000")
+                        .allowedOrigins(allowedOrigins)
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                         .allowedHeaders("*")
                         .allowCredentials(true);

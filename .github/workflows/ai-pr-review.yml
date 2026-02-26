@@ -81,6 +81,10 @@ jobs:
           - Explain concerns when they impact code quality, maintainability, or correctness.
           - Performance optimizations are out of scope unless they relate to the stated fix.
           - Remember: intentional architectural flaws are expected; poor coding practices are not.
+          - If something is not a problem, you don't need to mention. Things like "this is correct but you should pay attention" should not be written. 
+
+          Important informations:
+          - env.development is always commited as it doesn't hold any sensitive informations.
         
 
           Here is the git diff to review:
