@@ -51,10 +51,10 @@ services:
     ports:
       - "${BACKEND_PORT}:8000"
     depends_on:
-      - rabbitmq:
+      rabbitmq:
         condition: service_healthy
-      - db:
-          condition: service_healthy
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
       interval: 10s
