@@ -1,9 +1,9 @@
-include .env
-
 # Docker compose configuration
 DOCKER_DIR = docker
 COMPOSE_FILE = $(DOCKER_DIR)/compose.yaml
 ENV_FILE = .env
+POSTGRES_DB=order_processing
+POSTGRES_USER=lazybird_dev
 
 .PHONY: help db-shell build run stop logs clean
 
