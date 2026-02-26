@@ -69,7 +69,8 @@ jobs:
           - Focus on code cleanliness, maintainability, and adherence to language standards.
           - You don't need to point out things that are good and well written.
           - You should be concise and straightforward. 
-          - If you are not 100% sure about an issue, make it clear in the review. 
+          - If you are not 100% sure about an issue, make it clear in the review.
+          - Always look for unnecessary work that it's being done. Unused libs, dead code, Dockerfiles uploading unnecessary files to the container, etc. 
 
           Review guidelines:
           - Be pragmatic and concise.
