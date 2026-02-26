@@ -58,7 +58,11 @@ jobs:
           - Code is NOT expected to be production-ready after each PR.
 
           Current broken system description:
-          - System with data integrity issue. 
+          - System with event-driven issue 
+
+          Output format:
+          - I want just a table with the following columns: fix, explanation and priority. 
+          - The column explanation must be a short description why the specific fix is important. 
 
           Reviewer mindset:
           - You should only point out things that needs to be changed. Things that are well written doesn't need to be mentioned.
@@ -81,8 +85,11 @@ jobs:
           - Explain concerns when they impact code quality, maintainability, or correctness.
           - Performance optimizations are out of scope unless they relate to the stated fix.
           - Remember: intentional architectural flaws are expected; poor coding practices are not.
-        
+          - If something is not a problem, you don't need to mention. Things like "this is correct but you should pay attention" should not be written. 
 
+          Important informations:
+          - env.development is always commited as it doesn't hold any sensitive informations.
+        
           Here is the git diff to review:
           {diff}
           """
