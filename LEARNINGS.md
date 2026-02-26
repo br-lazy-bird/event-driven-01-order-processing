@@ -167,4 +167,96 @@ COPY common/src ./common/src
 
 ---
 
-Last Updated: 2026-02-26 (STC 11 completed, README scrubbed of all root cause hints)
+### Learning 7: Always Check Existing Broken Systems for Design Patterns FIRST
+**Mistake:** Created frontend styling from scratch without checking other broken systems for the established design pattern
+
+**Context:** During STC 10 (Frontend - React Setup & Components)
+
+**What went wrong:**
+- Used green gradient background instead of blue: `#064e3b → #10b981` (WRONG)
+- Page title was "Order Processing System" instead of "Lazy Bird"
+- Missing dialogue component with Lazy Bird mascot
+- Missing proper font-family in index.css
+- Had to fix everything after user pointed out it didn't match the pattern
+
+**Why it was wrong:**
+- Wasted time creating incorrect styling
+- Had to redo work that was already established in other broken systems
+- Lazy Bird has a consistent design system across all broken systems
+- Should have looked at `/broken-systems/database-performance/01-employee-directory/frontend` FIRST
+
+**Correct approach:**
+1. **BEFORE creating frontend**: Check an existing broken system's frontend (e.g., employee-directory)
+2. **Copy the established pattern**: Blue gradient, "Lazy Bird" title, dialogue component, mascot
+3. **Use shared components**: SystemLayout, Card, LoadingSpinner, etc. are already standardized
+4. **Check base.css**: The design system is already defined in `shared-styles/base.css`
+
+**What I should have checked first:**
+- Background gradient: `linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%)` (BLUE, not green)
+- Page structure: `<h1>Lazy Bird</h1>` then SystemLayout with problem-specific title
+- Dialogue pattern: Mascot icon + conversational text asking for help
+- Font stack: System fonts defined in index.css
+
+**Critical reminder:**
+- Don't reinvent the wheel - Lazy Bird has an established design system
+- Always check existing implementations before creating new ones
+- Consistency across broken systems is important for the Lazy Bird brand
+
+---
+
+### Learning 8: Lazy Bird Dialogue Tone - Coworker Asking for Help, Not a Challenge
+**Mistake:** Initial dialogue was too technical, on-the-nose, and sounded like a challenge instead of asking for help
+
+**Context:** Writing Lazy Bird dialogue for frontend App.tsx
+
+**What went wrong - Iteration 1:**
+```markdown
+"I'm too lazy to figure out why. Can you help?"
+```
+- **User feedback:** "saying 'I'm too lazy to figure out why' is a really lazy text. Please, be more creative"
+- **Problem:** Too on-the-nose, unimaginative, no personality
+
+**What went wrong - Iteration 2:**
+```markdown
+"Check out my order processing masterpiece! Event-driven architecture, RabbitMQ message queues,
+asynchronous workers—the works! Orders fly through the system and get fulfilled..."
+```
+- **User feedback:** "It's too technical. You don't need to explain the technical details of it."
+- **Problem:** Over-explaining implementation details, not conversational
+
+**What went wrong - Iteration 3:**
+```markdown
+"Why don't you give it a try? Place some orders and see if you can figure out
+what's happening to the stuck ones!"
+```
+- **User feedback:** "imagine that the Lazy Bird is asking for a coworker help. So, he would never say 'why don't you give it a try?' is more like asking for help because he is lazy"
+- **Problem:** Sounds like a challenge/test, not genuinely asking for help
+
+**Correct approach - Final version:**
+```markdown
+"Hey, so I built this order processing system, and most orders complete just fine! But then... some of them
+get stuck in PENDING forever. Just sitting there. Waiting. I started looking into it, but debugging
+distributed systems before my afternoon nap? Yeah, not happening. Could you help me figure out what's going
+on with the stuck ones? You can place some orders to see the issue yourself."
+```
+
+**What makes this correct:**
+- ✅ **Conversational tone**: "Hey, so I built..." - casual, friendly
+- ✅ **Non-technical language**: Doesn't mention RabbitMQ, queues, async workers, etc.
+- ✅ **Personality with humor**: "debugging distributed systems before my afternoon nap? Yeah, not happening"
+- ✅ **Genuine ask for help**: "Could you help me figure out..." (coworker asking coworker)
+- ✅ **Not a challenge**: Doesn't say "see if you can" or "give it a try" - that sounds like testing someone
+- ✅ **Describes observable behavior**: "stuck in PENDING forever. Just sitting there. Waiting."
+- ✅ **Helpful context**: "You can place some orders to see the issue yourself" (informative, not challenging)
+
+**Key principles for Lazy Bird dialogue:**
+1. **Be conversational, not technical** - Avoid jargon unless absolutely necessary
+2. **Show personality** - Use humor, quirks (afternoon nap), casual language
+3. **Don't be on-the-nose** - "I'm too lazy" is lazy writing; show it through actions/personality instead
+4. **Ask for help, don't challenge** - Tone should be "I need help" not "can you solve this?"
+5. **Describe symptoms, not architecture** - Focus on what's observable, not how it works internally
+6. **Be a coworker, not a teacher** - Equal footing, genuinely stuck and needs help
+
+---
+
+Last Updated: 2026-02-26 (STC 10 completed with dialogue tone corrections)
