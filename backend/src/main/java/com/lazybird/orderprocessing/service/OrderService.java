@@ -1,7 +1,8 @@
 package com.lazybird.orderprocessing.service;
 
 import java.util.List;
-import java.util.Random;
+import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.stereotype.Service;
 
@@ -19,25 +20,26 @@ public class OrderService {
         this.rabbitMQPublisher = rabbitMQPublisher;
     }
 
-    public List<Order> createOrders() {
+    public List<String> createAndPublishOrders() {
         List<String> products = List.of("Laptop", "Headphones", "Keyboard", "Mouse", "Monitor");
-        Random random = new Random();
-
         List<Order> orders = products.stream().map(product -> {
             Order order = new Order();
             order.setProduct(product);
-            order.setQuantity(random.nextInt(10) + 1);
+            order.setQuantity(ThreadLocalRandom.current().nextInt(1, 11));
             order.setStatus(Order.OrderStatus.PENDING);
             return order;
         }).toList();
 
-        return orderRepository.saveAll(orders);
-    }
+        orderRepository.saveAll(orders);
 
-    
-    
-    public void publishOrders(List<String> orderIds) {
+        List<String> orderIds = orders.stream()
+                  .map(Order::getId)
+                  .map(UUID::toString)
+                  .toList();
+                  
         orderIds.forEach(rabbitMQPublisher::publishOrder);
+
+        return orderIds;
     }
     
     public List<Order> getAllOrders() {

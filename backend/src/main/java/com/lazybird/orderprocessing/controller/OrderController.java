@@ -1,7 +1,6 @@
 package com.lazybird.orderprocessing.controller;
 
 import java.util.List;
-import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 
@@ -18,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/api")
 public class OrderController {
 
-    private OrderService orderService;
+    private final OrderService orderService;
 
     public OrderController(OrderService orderService) {
         this.orderService = orderService;
@@ -32,20 +31,12 @@ public class OrderController {
     @PostMapping("/reset")
     public ResponseEntity<Void> reset() {
         orderService.clearDatabase();
-        
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/orders/batch")
-    public ResponseEntity<List<String>> postBatchOrders() {
-        List<Order> orders = orderService.createOrders();
-        List<String> orderIds = orders.stream()
-                  .map(Order::getId)
-                  .map(UUID::toString)
-                  .collect(java.util.stream.Collectors.toList());
-        orderService.publishOrders(orderIds);
-
-        return ResponseEntity.ok(orderIds);
+    public ResponseEntity<List<String>> triggerBatchOrders() {
+        return ResponseEntity.ok(orderService.createAndPublishOrders());
     }
     
 }
