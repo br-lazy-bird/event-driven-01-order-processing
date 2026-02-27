@@ -20,10 +20,11 @@ jobs:
 
       - name: Generate git diff
         run: |
-          git fetch origin ${{ github.base_ref }}
-          git diff origin/${{ github.base_ref }}...HEAD > diff.txt
+          git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} > diff.txt
           echo "Diff line count:"
           wc -l diff.txt
+          echo "--- Diff preview ---"
+          head -200 diff.txt
 
       - name: Install OpenAI SDK
         run: |
