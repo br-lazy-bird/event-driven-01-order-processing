@@ -1,0 +1,32 @@
+.order-controls {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+
+.button-primary {
+  background: #059669;
+}
+
+.button-primary:hover:not(:disabled) {
+  background: #047857;
+}
+
+.button-secondary {
+  background: #64748b;
+}
+
+.button-secondary:hover:not(:disabled) {
+  background: #475569;
+}
+
+@media (max-width: 768px) {
+  .order-controls {
+    flex-direction: column;
+  }
+
+  .button {
+    width: 100%;
+  }
+}
