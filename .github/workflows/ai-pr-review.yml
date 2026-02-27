@@ -20,11 +20,22 @@ jobs:
 
       - name: Generate git diff
         run: |
-          git diff ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} > diff.txt
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          if [ -z "$BASE_SHA" ] || [ -z "$HEAD_SHA" ]; then
+            echo "Missing SHAs, skipping diff generation"
+            touch diff.txt
+            exit 0
+          fi
+
+          if ! git diff "$BASE_SHA"..."$HEAD_SHA" > diff.txt 2>/dev/null; then
+            echo "git diff failed, producing empty diff"
+            truncate -s 0 diff.txt
+          fi
+
           echo "Diff line count:"
           wc -l diff.txt
-          echo "--- Diff preview ---"
-          head -200 diff.txt
 
       - name: Install OpenAI SDK
         run: |

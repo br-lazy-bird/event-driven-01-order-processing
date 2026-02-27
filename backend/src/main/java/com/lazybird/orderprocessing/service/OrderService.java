@@ -12,7 +12,7 @@ import com.lazybird.common.repository.OrderRepository;
 public class OrderService {
 
     private final OrderRepository orderRepository;
-    private RabbitMQPublisher rabbitMQPublisher;
+    private final RabbitMQPublisher rabbitMQPublisher;
 
     public OrderService(OrderRepository orderRepository, RabbitMQPublisher rabbitMQPublisher) {
         this.orderRepository = orderRepository;
