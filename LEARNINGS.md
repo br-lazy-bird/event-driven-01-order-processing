@@ -259,4 +259,55 @@ on with the stuck ones? You can place some orders to see the issue yourself."
 
 ---
 
-Last Updated: 2026-02-26 (STC 10 completed with dialogue tone corrections)
+### Learning 9: Never Assume Work Completion - Always Verify
+**Mistake:** Incorrectly documented that user completed STC 6 and 7 (Worker) when only STC 5 was completed
+
+**Context:** Updating HANDOFF.md and todo list at end of session
+
+**What went wrong:**
+- Saw that backend endpoints were working (STC 5 verified)
+- Saw RabbitMQ queue had messages
+- **ASSUMED** user must have completed STC 6 (Worker setup) and STC 7 (Consumer)
+- Marked them as completed in todo list and HANDOFF.md
+- User corrected: "I only did the STC 5"
+
+**Why this was wrong:**
+- Made assumptions without asking or verifying
+- RabbitMQ having messages doesn't mean worker exists - backend publishes messages!
+- Incorrect documentation leads to confusion in next session
+- Could have caused next session to skip critical work (worker implementation)
+
+**What I should have done:**
+1. **Ask explicitly**: "Which STCs did you complete? Just STC 5 or also 6 and 7?"
+2. **Check evidence**: Look for worker files in the codebase
+3. **Verify services**: Check docker ps for worker container
+4. **Don't assume**: Backend working ≠ Worker exists
+
+**How to verify work completion:**
+```bash
+# Check if worker code exists
+ls -la worker/src/
+
+# Check if worker is running
+docker ps --filter "name=worker"
+
+# Check git log for commits
+git log --oneline
+
+# ASK THE USER
+```
+
+**Critical principle:**
+- **Documentation must be accurate** - HANDOFF.md guides the next session
+- **When in doubt, ask** - Don't assume based on partial evidence
+- **Verify before documenting** - Check files, containers, logs
+- **Backend working ≠ Everything working** - Each component needs verification
+
+**Impact of this mistake:**
+- Had to correct HANDOFF.md, todo list, and add this learning
+- Could have caused confusion tomorrow about what needs to be done
+- Wasted time on incorrect documentation
+
+---
+
+Last Updated: 2026-02-26 (All learnings documented, HANDOFF corrected)

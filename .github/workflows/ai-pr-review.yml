@@ -87,6 +87,7 @@ jobs:
           - Performance optimizations are out of scope unless they relate to the stated fix.
           - Remember: intentional architectural flaws are expected; poor coding practices are not.
           - If something is not a problem, you don't need to mention. Things like "this is correct but you should pay attention" should not be written. 
+          - You should not ask me to ensure anything. Only corrections of mistakes or improvements suggestions.
 
           Important informations:
           - env.development is always commited as it doesn't hold any sensitive informations.

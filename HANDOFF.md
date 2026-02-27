@@ -8,7 +8,7 @@
 
 ## What Was Just Completed
 
-**User:** STC 5, 6, 7 (Backend RabbitMQ + Worker)
+**User:** STC 5 (Backend RabbitMQ Configuration & Order API)
 **Claude:** STC 10, 11, 12 (Frontend + Documentation)
 
 **Verification:**
@@ -66,11 +66,15 @@
 
 ## Next Steps
 
-**Remaining STCs:**
-- STC 8: Docker Compose - Complete Development & Test Environments
-- STC 9: E2E Tests - Order Processing Flow
-- STC 13: Final Validation & Quality Checklist
-- STC 14: Merge to Main & Create Submodule
+**Remaining STCs (in order):**
+- **STC 6**: Worker - Maven Setup & Fulfillment Service
+- **STC 7**: Worker - Order Consumer WITHOUT DLQ Consumer (The Bug!)
+- **STC 8**: Docker Compose - Complete Development & Test Environments
+- **STC 9**: E2E Tests - Order Processing Flow
+- **STC 13**: Final Validation & Quality Checklist
+- **STC 14**: Merge to Main & Create Submodule
+
+**Critical:** Worker (STC 6-7) must be completed before STC 8-9. Without the worker, the system doesn't demonstrate the bug.
 
 **Immediate Decision Needed:**
 - Merge stc-10-11-12 to develop or keep separate?
