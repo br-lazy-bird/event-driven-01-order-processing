@@ -64,9 +64,7 @@ jobs:
           Review guidelines:
           - Be pragmatic, concise and straighforward.
           - You must indicate which file and line number a comment is refering to. 
-
-          Important informations:
-          - env.development is always commited as it doesn't hold any sensitive informations.
+          - I want you just to point out corrections or improvements suggestions. Anything else. 
         
           Here is the git diff to review:
           {diff}
