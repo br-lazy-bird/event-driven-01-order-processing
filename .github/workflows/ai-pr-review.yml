@@ -48,7 +48,7 @@ jobs:
               exit(0)
 
           prompt = f"""
-                    You are a Senior Software Engineer reviewing a pull request.
+                    You are a Senior Full Stack Software Engineer reviewing a pull request.
 
           Project context:
           - This repository is part of the Lazy Bird project.
@@ -58,36 +58,15 @@ jobs:
           - Code is NOT expected to be production-ready after each PR.
 
           Current broken system description:
-          - System with event-driven issue 
+          - System with event-driven issue
 
           Output format:
           - I want just a table with the following columns: fix, explanation and priority. 
           - The column explanation must be a short description why the specific fix is important. 
           - Order this table by priority from high to low.
 
-          Reviewer mindset:
-          - You should only point out things that needs to be changed. Things that are well written doesn't need to be mentioned.
-          - Treat this PR as one step in an incremental learning sequence.
-          - Code style, syntax, and language conventions are NOT part of the intentional flaws.
-          - Distinguish between intentional architectural issues vs. accidental code quality regressions.
-          - Do NOT suggest large refactors or unrelated improvements.
-          - Focus on code cleanliness, maintainability, and adherence to language standards.
-          - You don't need to point out things that are good and well written.
-          - You should be concise and straightforward. 
-          - If you are not 100% sure about an issue, make it clear in the review.
-          - Always look for unnecessary work that it's being done. Unused libs, dead code, Dockerfiles uploading unnecessary files to the container, etc. 
-
           Review guidelines:
-          - Be pragmatic and concise.
-          - Apply standard code quality practices for the language (PEP 8 for Python, etc.).
-          - Flag code that violates language conventions or reduces maintainability.
-          - Check that functionality is preserved (no regressions or broken logic).
-          - Identify dead code or orphaned functions that serve no purpose.
-          - Explain concerns when they impact code quality, maintainability, or correctness.
-          - Performance optimizations are out of scope unless they relate to the stated fix.
-          - Remember: intentional architectural flaws are expected; poor coding practices are not.
-          - If something is not a problem, you don't need to mention. Things like "this is correct but you should pay attention" should not be written. 
-          - You should not ask me to ensure anything. Only corrections of mistakes or improvements suggestions.
+          - Be pragmatic, concise and straighforward. 
 
           Important informations:
           - env.development is always commited as it doesn't hold any sensitive informations.
