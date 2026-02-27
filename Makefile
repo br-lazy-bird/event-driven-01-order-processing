@@ -5,7 +5,7 @@ ENV_FILE = .env
 POSTGRES_DB=order_processing
 POSTGRES_USER=lazybird_dev
 
-.PHONY: help db-shell build run stop logs clean
+.PHONY: help db-shell build run run-with-logs stop logs clean
 
 help:
 	@echo "Order Processing System - Available Commands:"
@@ -13,7 +13,8 @@ help:
 	@echo "  make help       - Show this help message"
 	@echo "  make db-shell   - Open PostgreSQL shell (requires running database)"
 	@echo "  make build      - Build and start all services"
-	@echo "  make run        - Start services (use cached images)"
+	@echo "  make run             - Start services (use cached images)"
+	@echo "  make run-with-logs   - Start services and follow logs"
 	@echo "  make stop       - Stop all services"
 	@echo "  make logs       - Show service logs"
 	@echo "  make clean      - Remove containers, volumes, and images"
@@ -28,9 +29,17 @@ build:
 	@echo "Building and starting services..."
 	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) up --build -d
 
+build-with-logs:
+	@echo "Building and starting services with logs..."
+	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) up --build
+
 run:
 	@echo "Starting services..."
 	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) up -d
+
+run-with-logs:
+	@echo "Starting services and following logs..."
+	docker compose -f $(COMPOSE_FILE) --env-file $(ENV_FILE) up
 
 stop:
 	@echo "Stopping services..."
