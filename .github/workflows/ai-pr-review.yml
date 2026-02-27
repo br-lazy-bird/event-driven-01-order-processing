@@ -60,13 +60,9 @@ jobs:
           Current broken system description:
           - System with event-driven issue
 
-          Output format:
-          - I want just a table with the following columns: fix, explanation and priority. 
-          - The column explanation must be a short description why the specific fix is important. 
-          - Order this table by priority from high to low.
-
           Review guidelines:
-          - Be pragmatic, concise and straighforward. 
+          - Be pragmatic, concise and straighforward.
+          - You must indicate which file and line number a comment is refering to. 
 
           Important informations:
           - env.development is always commited as it doesn't hold any sensitive informations.
