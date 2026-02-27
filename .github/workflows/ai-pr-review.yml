@@ -31,7 +31,7 @@ jobs:
 
           if ! git diff "$BASE_SHA"..."$HEAD_SHA" > diff.txt 2>/dev/null; then
             echo "git diff failed, producing empty diff"
-            truncate -s 0 diff.txt
+            touch diff.txt
           fi
 
           echo "Diff line count:"

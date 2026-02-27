@@ -11,9 +11,11 @@ import com.lazybird.orderprocessing.service.OrderService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 
 @RestController
+@RequestMapping("/api")
 public class OrderController {
 
     private OrderService orderService;
@@ -22,20 +24,20 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    @GetMapping("/api/orders")
+    @GetMapping("/orders")
     public ResponseEntity<List<Order>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
-    @PostMapping("/api/reset")
+    @PostMapping("/reset")
     public ResponseEntity<Void> reset() {
         orderService.clearDatabase();
+        
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping("/api/orders/batch")
+    @PostMapping("/orders/batch")
     public ResponseEntity<List<String>> postBatchOrders() {
-        
         List<Order> orders = orderService.createOrders();
         List<String> orderIds = orders.stream()
                   .map(Order::getId)
