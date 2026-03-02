@@ -40,11 +40,6 @@ yarn-error.log*
 dist/
 build/
 
-# Environment
-.env
-.env.local
-.env.*.local
-
 # Docker
 .dockerignore
 
