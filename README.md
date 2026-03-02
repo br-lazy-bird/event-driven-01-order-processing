@@ -143,10 +143,10 @@ You'll know you've successfully fixed the system when:
 
 - **All orders reach a final state**: Every order eventually becomes either `COMPLETED` or `FAILED`
 - **No orders stuck in PENDING**: The pending count eventually reaches zero
-- **Failed orders are visible**: Orders that fail fulfillment after retries show as `FAILED`
+- **Failed orders are visible**: Orders that fail fulfillment show as `FAILED`
 - **System handles failures gracefully**: The 50% fulfillment failure rate doesn't break the system
 
-The solution should work WITH the failures, not around them. Proper retry logic with exponential backoff is key.
+The solution should work WITH the failures, not around them.
 
 ---
 

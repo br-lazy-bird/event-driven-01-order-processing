@@ -310,4 +310,57 @@ git log --oneline
 
 ---
 
-Last Updated: 2026-02-26 (All learnings documented, HANDOFF corrected)
+### Learning 10: README Must NEVER Contain Solution Hints - Only Observable Behavior
+**Mistake:** Included "Proper retry logic with exponential backoff is key" in README.md Success Criteria section
+
+**Context:** Writing README.md for event-driven order processing system
+
+**Why this was catastrophically wrong:**
+- **VIOLATED FUNDAMENTAL RULE** from CLAUDE.md: "The root cause issue should be not mentioned in any files but the DETONADO.md"
+- "Retry logic with exponential backoff" IS THE SOLUTION - this tells users exactly what to implement
+- README must describe ONLY what users observe, never HOW to fix it
+- This completely ruins the learning experience - users should discover the solution themselves
+
+**What leaked the solution:**
+- ❌ "Proper retry logic with exponential backoff is key" - explicitly states the implementation approach
+- This is as bad as saying "add a DLQ consumer" or "use pessimistic locking"
+
+**Correct approach for README:**
+- ✅ Describe observable behavior: "orders stuck in PENDING", "no FAILED orders appear"
+- ✅ Describe expectations: "all orders should reach final state"
+- ✅ Describe constraints: "solution should work WITH failures, not around them"
+- ❌ NEVER describe implementation: retry logic, exponential backoff, DLQ consumer, specific patterns
+
+**Examples of acceptable vs forbidden README content:**
+
+**Acceptable (describes behavior/expectations):**
+- "All orders should eventually reach COMPLETED or FAILED status"
+- "The solution should work WITH the failures, not around them"
+- "No orders should remain stuck in PENDING forever"
+- "The 50% failure rate should not break the system"
+
+**Forbidden (hints at implementation):**
+- ❌ "Proper retry logic with exponential backoff is key"
+- ❌ "You'll need to handle failed messages"
+- ❌ "Consider what happens to messages that fail processing"
+- ❌ "Implement a consumer for failed messages"
+- ❌ "Use database locking to prevent race conditions"
+
+**Critical principle:**
+- README = Observable symptoms + Expected behavior ONLY
+- DETONADO = Root cause + Solution implementation
+- ANY hint about HOW to fix it belongs in DETONADO, NEVER in README
+
+**Impact of this mistake:**
+- Users immediately know to implement retry logic with exponential backoff
+- Removes the diagnostic/discovery phase entirely
+- Defeats the entire purpose of a "broken system" learning exercise
+
+**Extended rule for all broken systems:**
+- If a sentence tells users WHAT to implement or HOW to fix it → DELETE IT from README
+- If a sentence describes WHAT users see or WHAT should happen → OK for README
+- When in doubt → Remove it from README, put it in DETONADO instead
+
+---
+
+Last Updated: 2026-02-27 (Learning 10: README solution hint violation)
