@@ -10,7 +10,7 @@ public class OrderProcessor {
 
     @RabbitListener(queues = OrderMessagingConstants.ORDERS_QUEUE)
     public void process(String orderId) {
-        System.out.print("WORKER: ORDER ID: " + orderId);
+        System.out.println("WORKER: ORDER ID: " + orderId);
     }
 
 }
