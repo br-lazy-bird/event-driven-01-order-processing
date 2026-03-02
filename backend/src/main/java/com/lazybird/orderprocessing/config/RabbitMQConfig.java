@@ -7,21 +7,19 @@ import org.springframework.amqp.core.Binding;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.lazybird.common.messaging.OrderMessagingConstants;
+
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String ORDERS_EXCHANGE = "orders.exchange";
-    public static final String ORDERS_QUEUE = "orders.queue";
-    public static final String ORDERS_ROUTING_KEY = "orders.created";
-
     @Bean
     public DirectExchange ordersExchange() {
-        return new DirectExchange(ORDERS_EXCHANGE, true, false);
+        return new DirectExchange(OrderMessagingConstants.ORDERS_EXCHANGE, true, false);
     }
 
     @Bean
     public Queue ordersQueue() {
-        return new Queue(ORDERS_QUEUE, true);
+        return new Queue(OrderMessagingConstants.ORDERS_QUEUE, true);
     }
 
     @Bean
@@ -29,6 +27,6 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(ordersQueue)
                 .to(ordersExchange)
-                .with(ORDERS_ROUTING_KEY);
+                .with(OrderMessagingConstants.ORDERS_ROUTING_KEY);
     }
 }

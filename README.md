@@ -19,11 +19,7 @@ An educational project for learning event-driven architecture and message proces
 
 ### Setup
 
-This project includes a `.env.development` file with development configuration. Copy this file to `.env` before running the system:
-
-```bash
-cp .env.development .env
-```
+This project includes a `.env` file with development configuration.
 
 These settings are for **local development only** and contain no sensitive data. In production applications, always use proper secret management and never commit credentials to version control.
 

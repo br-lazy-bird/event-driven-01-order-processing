@@ -6,19 +6,19 @@ import org.springframework.stereotype.Service;
 import com.lazybird.common.messaging.OrderMessagingConstants;
 
 @Service
-public class RabbitMQPublisher {
+public class QueueManagementService {
 
     private final RabbitTemplate rabbitTemplate;
 
-    public RabbitMQPublisher(RabbitTemplate rabbitTemplate) {
+    public QueueManagementService(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void publishOrder(String orderId) {
-        rabbitTemplate.convertAndSend(
-                OrderMessagingConstants.ORDERS_EXCHANGE,
-                OrderMessagingConstants.ORDERS_ROUTING_KEY,
-                orderId);
+    public void purgeOrdersQueue() {
+        rabbitTemplate.execute(channel -> {
+            channel.queuePurge(OrderMessagingConstants.ORDERS_QUEUE);
+            return null;
+        });
     }
 
 }
