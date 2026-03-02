@@ -1,6 +1,6 @@
 package com.lazybird.orderprocessing.service;
 
-import org.springframework.amqp.rabbit.core.RabbitAdmin;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
 import com.lazybird.common.messaging.OrderMessagingConstants;
@@ -8,14 +8,17 @@ import com.lazybird.common.messaging.OrderMessagingConstants;
 @Service
 public class QueueManagementService {
 
-    private final RabbitAdmin rabbitAdmin;
+    private final RabbitTemplate rabbitTemplate;
 
-    public QueueManagementService(RabbitAdmin rabbitAdmin) {
-        this.rabbitAdmin = rabbitAdmin;
+    public QueueManagementService(RabbitTemplate rabbitTemplate) {
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public void purgeOrdersQueue() {
-        rabbitAdmin.purgeQueue(OrderMessagingConstants.ORDERS_QUEUE);
+        rabbitTemplate.execute(channel -> {
+            channel.queuePurge(OrderMessagingConstants.ORDERS_QUEUE);
+            return null;
+        });
     }
 
 }

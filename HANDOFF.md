@@ -2,7 +2,6 @@
 
 **Date**: 2026-03-02
 **Current Branch**: develop
-**Separate Branch**: stc-10-11-12 (STC 10-12 work, not merged yet)
 
 ---
 
@@ -72,10 +71,9 @@
 
 ## Git Status
 
-- develop: Working directory has uncommitted changes (STC 6 work)
-- stc-10-11-12: separate branch with STC 10-12 (still not merged)
-
-**Not ready to push yet**: User commits changes after each STC completion
+- develop: Clean working directory - all changes committed and pushed
+- stc-10-11-12: Merged to develop and pushed
+- Latest commits include: STC 6 (worker messaging integration), STC 10-12 (frontend + docs)
 
 ---
 
@@ -97,9 +95,6 @@
 - STC 7 completes the worker implementation and demonstrates the bug
 - The bug: Failed orders go to DLQ but no consumer processes them, so they stay PENDING forever
 - After STC 7, system will be functionally complete and ready for testing (STC 8-9)
-
-**Decision Needed:**
-- Merge stc-10-11-12 to develop or keep separate?
 
 ---
 
