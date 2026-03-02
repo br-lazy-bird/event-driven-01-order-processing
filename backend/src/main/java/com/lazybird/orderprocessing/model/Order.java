@@ -1,4 +1,4 @@
-package com.lazybird.common.model;
+package com.lazybird.orderprocessing.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

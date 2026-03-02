@@ -3,7 +3,7 @@ package com.lazybird.orderprocessing.service;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 
-import com.lazybird.orderprocessing.config.RabbitMQConfig;
+import com.lazybird.common.messaging.OrderMessagingConstants;
 
 @Service
 public class RabbitMQPublisher {
@@ -16,11 +16,9 @@ public class RabbitMQPublisher {
 
     public void publishOrder(String orderId) {
         rabbitTemplate.convertAndSend(
-            RabbitMQConfig.ORDERS_EXCHANGE,
-            RabbitMQConfig.ORDERS_ROUTING_KEY,
-            orderId
-        );
+                OrderMessagingConstants.ORDERS_EXCHANGE,
+                OrderMessagingConstants.ORDERS_ROUTING_KEY,
+                orderId);
     }
 
-    
 }

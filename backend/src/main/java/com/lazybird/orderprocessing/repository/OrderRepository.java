@@ -1,8 +1,9 @@
-package com.lazybird.common.repository;
+package com.lazybird.orderprocessing.repository;
 
-import com.lazybird.common.model.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import com.lazybird.orderprocessing.model.Order;
 
 import java.util.List;
 import java.util.UUID;

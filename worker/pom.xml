@@ -11,10 +11,10 @@
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>order-processing-backend</artifactId>
+    <artifactId>order-processing-worker</artifactId>
     <packaging>jar</packaging>
-    <name>Order Processing Backend</name>
-    <description>REST API for order processing system</description>
+    <name>Order Processing Worker</name>
+    <description>Worker for order processing system</description>
 
     <dependencies>
         <!-- Common Module -->
@@ -24,20 +24,6 @@
             <version>1.0.0</version>
         </dependency>
 
-        <!-- Spring Boot Web -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-
-        <!-- Spring Boot Data JPA -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-            <version>${spring.boot.version}</version>
-        </dependency>
-
         <!-- Spring Boot AMQP (RabbitMQ) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,19 +31,10 @@
             <version>${spring.boot.version}</version>
         </dependency>
 
-        <!-- PostgreSQL Driver -->
         <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <version>42.7.2</version>
-        </dependency>
-
-        <!-- Lombok -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>1.18.30</version>
-            <scope>provided</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>${spring.boot.version}</version>
         </dependency>
         
     </dependencies>
