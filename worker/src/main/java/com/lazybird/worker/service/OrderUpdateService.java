@@ -22,7 +22,6 @@ public class OrderUpdateService {
     public void changeOrderState(UUID orderId, OrderStatus status) {
         Order order = orderRepository.getReferenceById(orderId);
         order.setStatus(status);
-        orderRepository.save(order);
     }
 
 }

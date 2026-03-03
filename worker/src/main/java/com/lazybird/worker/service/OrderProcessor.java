@@ -14,23 +14,23 @@ import com.lazybird.worker.model.Order.OrderStatus;
 @Service
 public class OrderProcessor {
 
-    private final FullfilmentService fullfilmentService;
+    private final FulfillmentService fulfillmentService;
     private final OrderUpdateService orderUpdateService;
     private static final Logger logger = LoggerFactory.getLogger(OrderProcessor.class);
 
-    public OrderProcessor(FullfilmentService fullfilmentService, OrderUpdateService orderUpdateService) {
-        this.fullfilmentService = fullfilmentService;
+    public OrderProcessor(FulfillmentService fulfillmentService, OrderUpdateService orderUpdateService) {
+        this.fulfillmentService = fulfillmentService;
         this.orderUpdateService = orderUpdateService;
     }
 
     @RabbitListener(queues = OrderMessagingConstants.PROCESS_QUEUE)
     public void process(String orderId) {
         try {
-            fullfilmentService.fulfillOrder(orderId);
+            fulfillmentService.fulfillOrder(orderId);
             orderUpdateService.changeOrderState(UUID.fromString(orderId), OrderStatus.COMPLETED);
-            logger.info("Order id: " + orderId + " COMPLETED");
+            logger.info("Order id: {} COMPLETED", orderId);
         } catch (FulfillmentException e) {
-            logger.error("Fulfillment failed for order: " + orderId + ", sending to DLQ");
+            logger.error("Fulfillment failed for order: {}, sending to DLQ", orderId);
             throw e;
         }
 

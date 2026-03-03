@@ -9,18 +9,18 @@ import org.springframework.stereotype.Service;
 import com.lazybird.worker.exceptions.FulfillmentException;
 
 @Service
-public class FullfilmentService {
+public class FulfillmentService {
 
-    private static final Logger log = LoggerFactory.getLogger(FullfilmentService.class);
+    private static final Logger log = LoggerFactory.getLogger(FulfillmentService.class);
     private final Random random = new Random();
 
-    public void fulfillOrder(String orderid) {
-        log.info("Attempting to fulfill order: {}", orderid);
+    public void fulfillOrder(String orderId) {
+        log.info("Attempting to fulfill order: {}", orderId);
         simulateProcessing();
 
         // 50% chance of failure
         if (random.nextBoolean()) {
-            throw new FulfillmentException("Order fulfillment failed for:" + orderid);
+            throw new FulfillmentException("Order fulfillment failed for:" + orderId);
         }
     }
 
