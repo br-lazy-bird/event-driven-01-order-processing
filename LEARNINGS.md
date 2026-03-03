@@ -363,4 +363,82 @@ git log --oneline
 
 ---
 
-Last Updated: 2026-02-27 (Learning 10: README solution hint violation)
+## Session: 2026-03-02
+
+### Learning 11: Always Add @Transactional When Using getReferenceById() in JPA
+**Mistake:** Created `OrderUpdateService.changeOrderState()` using `getReferenceById()` without `@Transactional` annotation
+
+**Context:** Implementing worker service to update order status in database after fulfillment
+
+**Error encountered:**
+```
+org.hibernate.LazyInitializationException: Could not initialize proxy
+[com.lazybird.worker.model.Order#...] - no session
+```
+
+**What went wrong:**
+1. `OrderUpdateService.changeOrderState()` called `orderRepository.getReferenceById(orderId)`
+2. `getReferenceById()` returns a lazy proxy (doesn't hit database immediately)
+3. Method tried to call `order.setStatus(status)` on the proxy
+4. No active Hibernate session because method wasn't `@Transactional`
+5. Proxy initialization failed → LazyInitializationException at runtime
+
+**Why this is tricky:**
+- Compiles fine - this is a RUNTIME error, not compile-time
+- Easy to miss during development if you don't test immediately
+- Worker successfully consumed messages but couldn't update database
+- Error logs showed the worker was processing but all updates failed
+
+**Fix:**
+```java
+@Service
+public class OrderUpdateService {
+
+    @Transactional  // ← CRITICAL: Required for getReferenceById()
+    public void changeOrderState(UUID orderId, OrderStatus status) {
+        Order order = orderRepository.getReferenceById(orderId);
+        order.setStatus(status);
+        orderRepository.save(order);
+    }
+}
+```
+
+**Alternative approaches (if you forget @Transactional):**
+```java
+// Option 1: Use findById() instead (eagerly loads entity)
+Order order = orderRepository.findById(orderId)
+    .orElseThrow(() -> new EntityNotFoundException("Order not found"));
+
+// Option 2: Use @Transactional on listener method (not recommended)
+@RabbitListener(queues = "orders.process.queue")
+@Transactional
+public void process(String orderId) { ... }
+```
+
+**Why getReferenceById() + @Transactional is preferred:**
+- More efficient: Avoids SELECT query when you know entity exists
+- Clean separation: Service layer handles transactions, not listeners
+- Standard Spring Data JPA pattern for updates
+
+**How to avoid this mistake:**
+1. **Always add @Transactional** to service methods that:
+   - Use `getReferenceById()`
+   - Modify entity state
+   - Rely on lazy loading
+2. **Test immediately**: Don't write a service method and move on - test it!
+3. **Watch for runtime errors**: LazyInitializationException = missing @Transactional
+4. **Use findById() if unsure**: Less efficient but safer (fails fast if entity doesn't exist)
+
+**Red flags that you need @Transactional:**
+- Using `getReferenceById()`, `getOne()`, or any lazy-loading JPA method
+- Accessing lazy-loaded entity properties outside repository method
+- Modifying entity state and expecting changes to persist
+
+**Critical principle:**
+- `getReferenceById()` + no `@Transactional` = LazyInitializationException at runtime
+- This is a common JPA pitfall - always remember the annotation!
+- When in doubt, use `findById()` which eagerly loads the entity
+
+---
+
+Last Updated: 2026-03-02 (Learning 11: LazyInitializationException with getReferenceById)
