@@ -19,7 +19,7 @@ export const OrderControls: React.FC<OrderControlsProps> = ({
         onClick={onPlaceOrders}
         disabled={loading}
       >
-        Place 5 Orders
+        Place 10 Orders
       </button>
       <button
         className="button button-secondary"

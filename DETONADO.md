@@ -29,10 +29,18 @@ When you create batch orders in the system:
 ### Measuring the Problem
 
 1. Start the system: `make run`
-2. Create batch orders: `curl -X POST http://localhost:8080/api/orders/batch`
-3. Wait 10 seconds and check order statuses: `curl http://localhost:8080/api/orders`
-4. Open RabbitMQ Management UI: http://localhost:15672 (user: `lazybird`, password: `lazybird_rabbitmq`)
-5. Navigate to "Queues" tab and check `orders.dlq.queue`
+2. Open the frontend: http://localhost:3000
+3. Click "Place 10 Orders" to create a batch
+4. Wait 10-15 seconds and observe the statistics
+5. Open RabbitMQ Management UI: http://localhost:15673 (user: `lazybird`, password: `lazybird_rabbitmq`)
+6. Navigate to "Queues" tab and check `orders.dlq.queue`
+
+**Or use the API directly:**
+```bash
+curl -X POST http://localhost:8000/api/orders/batch
+sleep 10
+curl http://localhost:8000/api/orders | jq
+```
 
 **Expected Observation:**
 - Approximately 50% of orders are `COMPLETED`
@@ -160,7 +168,7 @@ public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(Conne
 
 ### 1. Check RabbitMQ Queue Status
 
-Open RabbitMQ Management UI (http://localhost:15672):
+Open RabbitMQ Management UI (http://localhost:15673):
 - Login: `lazybird` / `lazybird_rabbitmq`
 - Navigate to "Queues" tab
 
@@ -366,14 +374,14 @@ make build
 
 1. Create batch orders:
    ```bash
-   curl -X POST http://localhost:8080/api/orders/batch
+   curl -X POST http://localhost:8000/api/orders/batch
    ```
 
 2. Wait 15 seconds for processing and retries
 
 3. Check order statuses:
    ```bash
-   curl http://localhost:8080/api/orders | jq '.[] | {id, status}'
+   curl http://localhost:8000/api/orders | jq '.[] | {id, status}'
    ```
 
 **Expected Result:**
@@ -384,7 +392,7 @@ make build
 
 ### Step 3: Verify DLQ Processing
 
-Check RabbitMQ Management UI (http://localhost:15672):
+Check RabbitMQ Management UI (http://localhost:15673):
 ```
 orders.process.queue - Normal processing
 orders.dlq.queue     - Messages consumed and removed ✅

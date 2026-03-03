@@ -28,10 +28,6 @@ export const OrderList: React.FC<OrderListProps> = ({ orders }) => {
     });
   };
 
-  const formatCurrency = (amount: number): string => {
-    return `$${amount.toFixed(2)}`;
-  };
-
   if (orders.length === 0) {
     return (
       <div className="empty-state">
@@ -45,8 +41,8 @@ export const OrderList: React.FC<OrderListProps> = ({ orders }) => {
       {orders.map((order) => (
         <div key={order.id} className="order-card">
           <div className="order-header">
-            <div className="order-customer">
-              <span className="customer-name">{order.customerName}</span>
+            <div className="order-product">
+              <span className="product-name">{order.product}</span>
             </div>
             <span className={`order-status ${getStatusColor(order.status)}`}>
               {order.status}
@@ -55,17 +51,19 @@ export const OrderList: React.FC<OrderListProps> = ({ orders }) => {
 
           <div className="order-details">
             <div className="detail-row">
-              <span className="detail-label">Product:</span>
-              <span className="detail-value">{order.productName}</span>
-            </div>
-            <div className="detail-row">
               <span className="detail-label">Quantity:</span>
               <span className="detail-value">{order.quantity}</span>
             </div>
             <div className="detail-row">
-              <span className="detail-label">Total:</span>
-              <span className="detail-value amount">{formatCurrency(order.totalAmount)}</span>
+              <span className="detail-label">Order ID:</span>
+              <span className="detail-value order-id">{order.id.substring(0, 8)}...</span>
             </div>
+            {order.failureReason && (
+              <div className="detail-row">
+                <span className="detail-label">Failure:</span>
+                <span className="detail-value failure-reason">{order.failureReason}</span>
+              </div>
+            )}
           </div>
 
           <div className="order-footer">

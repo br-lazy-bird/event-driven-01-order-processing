@@ -6,11 +6,10 @@ export enum OrderStatus {
 
 export interface Order {
   id: string;
-  customerName: string;
-  productName: string;
+  product: string;
   quantity: number;
-  totalAmount: number;
   status: OrderStatus;
+  failureReason: string | null;
   createdAt: string;
   updatedAt: string;
 }

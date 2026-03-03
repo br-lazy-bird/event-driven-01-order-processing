@@ -15,7 +15,7 @@ An educational project for learning event-driven architecture and message proces
 ### Prerequisites
 - Docker and Docker Compose installed
 - 4GB+ available RAM
-- Ports 8000, 8001, 5433, 5672, and 15673 available
+- Ports 3000, 8000, 8001, 5433, 5672, and 15673 available
 
 ### Setup
 
@@ -34,8 +34,10 @@ The system will:
 - Launch Spring Boot backend API
 - Start RabbitMQ message broker
 - Launch async worker service
+- Start React frontend
 
 **Access the application:**
+- Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
 - RabbitMQ Management: http://localhost:15673 (user: lazybird, password: lazybird_rabbitmq)
 - Database: localhost:5433
@@ -45,6 +47,16 @@ The system will:
 ## System Architecture
 
 ```
+┌─────────────────────────────────────────────────────────────────┐
+│                    React Frontend                               │
+│                 (http://localhost:3000)                         │
+│         Order management UI with real-time polling              │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             │ HTTP Request
+                             │ POST /api/orders/batch
+                             │ GET /api/orders
+                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                  Spring Boot Backend                            │
 │                 (http://localhost:8000)                         │
@@ -73,6 +85,8 @@ The system will:
 
 ### Technology Stack
 
+**Frontend:** React 19 with TypeScript
+
 **Backend:** Spring Boot 4.0.3 (Java 21), Maven multi-module
 
 **Worker:** Spring Boot 4.0.3 (Java 21), async message consumer
@@ -83,6 +97,7 @@ The system will:
 
 **Infrastructure:**
 - Docker Compose for easy setup
+- Real-time polling for order updates
 - Isolated network environment
 
 ---
@@ -133,6 +148,15 @@ The solution should work WITH the failures, not around them.
 ---
 
 ## How to Use the System
+
+### Frontend Interface
+
+**Order Management:**
+1. Open http://localhost:3000
+2. Click "Place 10 Orders" to create a batch of 10 random orders
+3. Watch the order statuses update in real-time (polls every 2 seconds)
+4. Observe the statistics showing COMPLETED, PENDING, and FAILED counts
+5. Use "Reset System" to clear all orders and start fresh
 
 ### API Endpoints
 
