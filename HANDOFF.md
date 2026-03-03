@@ -7,110 +7,173 @@
 
 ## What Was Just Completed
 
-**STC 6**: Worker - Maven Setup & Messaging Integration (Basic)
+**STC 7**: Worker - Order Consumer WITHOUT DLQ Consumer (The Bug!) - **COMPLETE**
 
-**Verification:**
-- ✅ Worker container builds and runs successfully
-- ✅ Worker connects to RabbitMQ (1 consumer registered on orders.queue)
-- ✅ Messages flow end-to-end: Backend → RabbitMQ → Worker
-- ✅ Worker processes and logs order IDs to console
-- ✅ All services healthy (backend, worker, rabbitmq, db)
+**Implemented:**
+- ✅ FulfillmentService with 50% random failure rate
+- ✅ Database integration in worker (Order entity, OrderRepository, OrderUpdateService with @Transactional)
+- ✅ OrderProcessor updated to call fulfillment and update status
+- ✅ DLQ infrastructure configured in worker (DLX, DLQ, bindings)
+- ✅ Failed orders go directly to DLQ on first failure (no retries)
+- ✅ No DLQ consumer (intentionally missing - THE BUG!)
 
-**Note:** Worker currently only prints order IDs. Fulfillment service logic with 50% failure rate still needed for STC 7.
+**TESTED & WORKING:**
+- ✅ Order processing with 50% failure rate
+- ✅ Failed fulfillments go directly to DLQ (no retries)
+- ✅ Database status updates (COMPLETED on success, PENDING on failure)
+- ✅ DLQ bug confirmed: failed orders remain PENDING forever
 
 ---
 
-## Critical Fixes Applied
+## Critical Implementation Details
 
-**1. Environment Variable Configuration**
-- Issue: `.env` file had variable substitution `${FRONTEND_PORT}` causing Docker Compose failures
-- Fix: Changed to hardcoded value `http://localhost:3000` in both `.env` and `.env.development`
-- Impact: All services now start correctly
+### DLQ Mechanism - Direct Routing on First Failure
+**Location:** `worker/src/main/java/com/lazybird/worker/config/RabbitMQConfig.java`
 
-**2. Docker Healthcheck Commands**
-- Issue: Backend and worker healthchecks used `curl` which doesn't exist in Alpine Linux
-- Fix: Changed to `wget` in `docker/compose.yaml` for both services
-- Files: `docker/compose.yaml` (backend and worker healthcheck sections)
+**Architecture:**
+- Uses RabbitMQ's Dead Letter Exchange (DLX) for automatic routing
+- **Process Queue**: Configured with DLX to send rejected messages directly to DLQ
+- **DLQ**: Receives failed messages immediately (no retries)
+- **Container Factory**: Configured with `setDefaultRequeueRejected(false)` to prevent requeuing
 
-**3. Worker RabbitMQ Queue Configuration**
-- Issue: Worker couldn't consume messages - queue not declared in worker context
-- Fix: Created `worker/src/main/java/com/lazybird/worker/config/RabbitMQConfig.java`
-- Pattern: Queue declaration is idempotent and best practice for microservices independence
+**Flow:**
+1. Message processed from `orders.process.queue`
+2. If processing fails → exception thrown → Spring AMQP rejects message
+3. Message automatically routed to DLQ via DLX (not requeued)
+4. Order remains PENDING in database forever
 
-**4. RabbitListener Not Enabled**
-- Issue: `@RabbitListener` annotation not processed - no listener containers created
-- Fix: Added `@EnableRabbit` annotation to `WorkerApplication.java`
-- Impact: Worker now successfully consumes messages from queue
+**Constants:** `common/src/main/java/com/lazybird/common/messaging/OrderMessagingConstants.java`
+- `PROCESS_QUEUE` = "orders.process.queue"
+- `DLQ_QUEUE` = "orders.dlq.queue"
+- `PROCESS_KEY` = "order.process"
+- `DLQ_KEY` = "order.dlq"
 
-**5. Console Output Visibility**
-- Issue: `System.out.print` without newline didn't flush output
-- Fix: Changed to `System.out.println` in `OrderProcessor.java`
-- Impact: Worker output now visible in logs
+### RabbitMQ Topology (Worker Owns All)
+**Location:** `worker/src/main/java/com/lazybird/worker/config/RabbitMQConfig.java`
+
+Worker declares:
+- Exchange: `orders.exchange`
+- Process queue with DLX args pointing to DLQ
+- DLQ queue (no consumer!)
+- All bindings
+- Container factory with requeue disabled
+
+Backend only declares the exchange for publishing.
+
+### The Bug
+**No DLQ consumer exists!** Failed orders go to DLQ and remain PENDING forever.
+
+---
+
+## Architecture Decisions Made Today
+
+### 1. No Retry Mechanism - Direct to DLQ
+**Decision:** Failed messages go directly to DLQ on first failure (no retries)
+
+**Reason:**
+- Simplifies the bug demonstration
+- Uses RabbitMQ DLX for automatic routing
+- `setDefaultRequeueRejected(false)` prevents infinite requeuing
+- Clear, immediate failure path
+
+**Documented in:** TRADEOFF.md Section 6
+
+### 2. String vs DTO for RabbitMQ Messages
+**Decision:** Use `String` (UUID.toString()) instead of `OrderProcessCommand` DTO
+
+**Reason:**
+- DTO approach required Jackson JSON message converter configuration
+- Adds complexity not needed for demo
+- String works out-of-the-box with default converter
+
+**Documented in:** TRADEOFF.md Section 5
+
+### 3. RabbitMQ Topology Location
+**Decision:** Worker declares all RabbitMQ topology (exchanges, queues, DLQ)
+
+**Reason:**
+- Microservices best practice: consumer owns its queue topology
+- Service independence
+- Worker needs complete control over DLQ mechanism
+- Backend only declares exchange for publishing
+
+**Documented in:** TRADEOFF.md Section 6
 
 ---
 
 ## Files Modified Today
 
-**Worker:**
-- worker/pom.xml (already existed)
-- worker/Dockerfile (already existed)
-- worker/src/main/resources/application.properties (already existed)
-- worker/src/main/java/com/lazybird/worker/WorkerApplication.java (added @EnableRabbit)
-- worker/src/main/java/com/lazybird/worker/config/RabbitMQConfig.java (created - queue declaration)
-- worker/src/main/java/com/lazybird/worker/service/OrderProcessor.java (changed print to println)
+**Backend:**
+- backend/src/main/java/com/lazybird/orderprocessing/config/RabbitMQConfig.java (simplified - only exchange)
+- backend/src/main/java/com/lazybird/orderprocessing/service/RabbitMQPublisher.java (updated routing key to PROCESS_KEY)
+- backend/src/main/java/com/lazybird/orderprocessing/service/QueueManagementService.java (updated queue name to PROCESS_QUEUE)
 
-**Configuration:**
-- .env (fixed CORS_ALLOWED_ORIGINS variable)
-- .env.development (fixed CORS_ALLOWED_ORIGINS variable)
-- docker/compose.yaml (changed healthchecks from curl to wget for backend and worker)
+**Worker:**
+- worker/src/main/java/com/lazybird/worker/config/RabbitMQConfig.java (topology + container factory with requeue disabled)
+- worker/src/main/java/com/lazybird/worker/service/OrderProcessor.java (fulfillment + status update, throws exception on failure)
+- worker/src/main/java/com/lazybird/worker/service/FulfillmentService.java (created - 50% failure)
+- worker/src/main/java/com/lazybird/worker/service/OrderUpdateService.java (created with @Transactional)
+- worker/src/main/java/com/lazybird/worker/exceptions/FulfillmentException.java (created)
+- worker/src/main/java/com/lazybird/worker/model/Order.java (duplicated from backend)
+- worker/src/main/java/com/lazybird/worker/repository/OrderRepository.java (duplicated from backend)
+- worker/pom.xml (added JPA and PostgreSQL dependencies)
+- worker/src/main/resources/application.properties (added database config)
+
+**Common:**
+- common/src/main/java/com/lazybird/common/messaging/OrderMessagingConstants.java (PROCESS_QUEUE, DLQ_QUEUE, PROCESS_KEY, DLQ_KEY)
+
+**Docker:**
+- docker/compose.yaml (added database env vars to worker service)
 
 **Documentation:**
+- TRADEOFF.md (updated section 6 - Worker owns topology)
 - HANDOFF.md (this file)
 
 ---
 
 ## Git Status
 
-- develop: Clean working directory - all changes committed and pushed
-- stc-10-11-12: Merged to develop and pushed
-- Latest commits include: STC 6 (worker messaging integration), STC 10-12 (frontend + docs)
+- develop: Uncommitted changes (STC 7 complete, simplified DLQ implementation)
+- All changes tested and working
 
 ---
 
 ## Next Steps
 
-**Remaining STCs (in order):**
-- **STC 7**: Worker - Order Consumer WITHOUT DLQ Consumer (The Bug!) ← **NEXT**
-  - Add fulfillment service with 50% random failure
-  - Add database integration (Order entity, OrderRepository, OrderUpdateService)
-  - Update order status to COMPLETED on success
-  - Route failed messages to DLQ (but NO DLQ consumer - this is the bug!)
-
+**Remaining STCs:**
 - **STC 8**: Docker Compose - Complete Development & Test Environments
 - **STC 9**: E2E Tests - Order Processing Flow
 - **STC 13**: Final Validation & Quality Checklist
 - **STC 14**: Merge to Main & Create Submodule
 
-**Critical Notes:**
-- STC 7 completes the worker implementation and demonstrates the bug
-- The bug: Failed orders go to DLQ but no consumer processes them, so they stay PENDING forever
-- After STC 7, system will be functionally complete and ready for testing (STC 8-9)
+---
+
+## Known Issues Fixed
+
+1. ✅ **Queue Name Mismatches**: Fixed queue naming consistency
+2. ✅ **Routing Key Mismatches**: Fixed routing key alignment
+3. ✅ **LazyInitializationException**: Added @Transactional to OrderUpdateService
+4. ✅ **Infinite Requeuing**: Added `setDefaultRequeueRejected(false)` to prevent failed messages from requeuing infinitely
 
 ---
 
 ## Architecture Status
 
-**Working:**
-- Backend: Publishing orders to RabbitMQ exchange with routing key
-- RabbitMQ: Queue bound to exchange, receiving messages
-- Worker: Consuming messages from queue (basic processing only)
-- Database: Connected and ready
+**Working & Tested:**
+- Backend: Publishing orders as String to RabbitMQ with PROCESS_KEY ✅
+- RabbitMQ: Process queue configured with DLX to DLQ ✅
+- Worker: Consuming messages, throws exception on failure ✅
+- Worker: Database integration with @Transactional ✅
+- Fulfillment: 50% random failure implementation ✅
+- DLQ routing: Failed orders go directly to DLQ (no retries) ✅
+- Database updates: COMPLETED on success, PENDING on failure ✅
 
-**Incomplete:**
-- Worker fulfillment service logic (random failures)
-- Worker database integration (order status updates)
-- DLQ consumer (intentionally missing - the bug)
+**Complete (The Bug):**
+- DLQ infrastructure exists (declared by worker) ✅
+- Failed messages automatically routed to DLQ via DLX ✅
+- **NO DLQ consumer** ✅ ← Intentional bug!
+- Failed orders remain PENDING in database forever ✅
 
 ---
 
-Last Updated: 2026-03-02
+Last Updated: 2026-03-03 (STC 7 complete - DLQ bug working)

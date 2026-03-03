@@ -16,7 +16,7 @@ public class QueueManagementService {
 
     public void purgeOrdersQueue() {
         rabbitTemplate.execute(channel -> {
-            channel.queuePurge(OrderMessagingConstants.ORDERS_QUEUE);
+            channel.queuePurge(OrderMessagingConstants.PROCESS_QUEUE);
             return null;
         });
     }

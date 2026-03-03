@@ -27,7 +27,8 @@ public class OrderService {
     }
 
     public BatchOrderResponse createAndPublishOrders() {
-        List<String> products = List.of("Laptop", "Headphones", "Keyboard", "Mouse", "Monitor");
+        List<String> products = List.of("Laptop", "Headphones", "Keyboard", "Mouse", "Monitor", "Book", "Mug", "Chair",
+                "Cellphone", "Pen");
         List<Order> orders = products.stream().map(product -> {
             Order order = new Order();
             order.setProduct(product);
@@ -39,7 +40,7 @@ public class OrderService {
         orderRepository.saveAll(orders);
 
         List<UUID> orderIds = orders.stream().map(Order::getId).toList();
-        orderIds.forEach(id -> rabbitMQPublisher.publishOrder(id.toString()));
+        orderIds.forEach(rabbitMQPublisher::publishOrder);
 
         return new BatchOrderResponse(orderIds);
     }
