@@ -15,7 +15,7 @@ An educational project for learning event-driven architecture and message proces
 ### Prerequisites
 - Docker and Docker Compose installed
 - 4GB+ available RAM
-- Ports 3000, 8000, 8001, 5432, 5672, and 15672 available
+- Ports 8000, 8001, 5433, 5672, and 15673 available
 
 ### Setup
 
@@ -34,12 +34,10 @@ The system will:
 - Launch Spring Boot backend API
 - Start RabbitMQ message broker
 - Launch async worker service
-- Start React frontend
 
 **Access the application:**
-- Frontend: http://localhost:3000
 - Backend API: http://localhost:8000
-- RabbitMQ Management: http://localhost:15672 (user: lazybird, password: lazybird_rabbitmq)
+- RabbitMQ Management: http://localhost:15673 (user: lazybird, password: lazybird_rabbitmq)
 - Database: localhost:5433
 
 ---
@@ -47,16 +45,6 @@ The system will:
 ## System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    React Frontend                               │
-│                 (http://localhost:3000)                         │
-│         Order management UI with real-time status               │
-└────────────────────────────┬────────────────────────────────────┘
-                             │
-                             │ HTTP Request
-                             │ POST /api/orders/batch
-                             │ GET /api/orders
-                             ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                  Spring Boot Backend                            │
 │                 (http://localhost:8000)                         │
@@ -69,7 +57,8 @@ The system will:
 ┌─────────────────────┐      ┌─────────────────────────────────────┐
 │   PostgreSQL DB     │      │          RabbitMQ                   │
 │  (localhost:5433)   │      │     (localhost:5672)                │
-│  orders table       │      │       Message Queue                 │
+│  orders table       │      │  orders.process.queue               │
+│                     │      │  orders.dlq.queue                   │
 └─────────────────────┘      └──────────┬──────────────────────────┘
                                         │
                                         │ AMQP
@@ -84,19 +73,16 @@ The system will:
 
 ### Technology Stack
 
-**Frontend:** React 19 with TypeScript
-
 **Backend:** Spring Boot 4.0.3 (Java 21), Maven multi-module
 
 **Worker:** Spring Boot 4.0.3 (Java 21), async message consumer
 
 **Database:** PostgreSQL 15
 
-**Message Broker:** RabbitMQ 3.12
+**Message Broker:** RabbitMQ 3.13
 
 **Infrastructure:**
 - Docker Compose for easy setup
-- Hot-reload enabled for development
 - Isolated network environment
 
 ---
@@ -148,22 +134,25 @@ The solution should work WITH the failures, not around them.
 
 ## How to Use the System
 
-### Frontend Interface
-
-**Order Management:**
-1. Open http://localhost:3000
-2. Click "Place 5 Orders" to create a batch of 5 random orders
-3. Watch the order statuses update in real-time
-4. Observe the statistics showing COMPLETED, PENDING, and FAILED counts
-5. Use "Reset System" to clear all orders and start fresh
-
 ### API Endpoints
 
 **Backend Service:**
-- `POST /api/orders/batch` - Create 5 random orders
+- `POST /api/orders/batch` - Create 10 random orders
 - `GET /api/orders` - List all orders with current status
 - `POST /api/reset` - Delete all orders and purge RabbitMQ queues
 - `GET /health` - Health check
+
+**Example Usage:**
+```bash
+# Create batch of 10 orders
+curl -X POST http://localhost:8000/api/orders/batch
+
+# List all orders
+curl http://localhost:8000/api/orders
+
+# Reset system
+curl -X POST http://localhost:8000/api/reset
+```
 
 **Worker Service:**
 - Runs in background, no direct API
@@ -174,12 +163,16 @@ The solution should work WITH the failures, not around them.
 
 **Access the management UI:**
 ```bash
-# Open http://localhost:15672
+# Open http://localhost:15673
 # Username: lazybird
 # Password: lazybird_rabbitmq
 ```
 
 Use the RabbitMQ management interface to inspect queues and message flow. This can help you understand what's happening to messages in the system.
+
+**Key Queues:**
+- `orders.process.queue` - Main processing queue
+- `orders.dlq.queue` - Dead Letter Queue for failed messages
 
 ### Database Access
 
@@ -198,10 +191,13 @@ make db-shell
 **Useful queries:**
 ```sql
 -- View all orders
-SELECT id, customer_name, product_name, status, created_at FROM orders ORDER BY created_at DESC;
+SELECT id, product, quantity, status, created_at, updated_at FROM orders ORDER BY created_at DESC;
 
 -- Count by status
 SELECT status, COUNT(*) FROM orders GROUP BY status;
+
+-- View only pending/failed orders
+SELECT id, product, status, failure_reason FROM orders WHERE status IN ('PENDING', 'FAILED');
 ```
 
 ---
