@@ -1,9 +1,5 @@
 # Lazy Bird: Event-Driven Order Processing
 
-## ⚠️ UNDER CONSTRUCTION ⚠️
-
-**This system is currently under development and not yet ready for use.**
-
 ---
 
 An educational project for learning event-driven architecture and message processing through hands-on practice.
