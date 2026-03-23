@@ -100,7 +100,7 @@ The worker's OrderProcessor (worker/src/main/java/com/lazybird/worker/service/Or
 @RabbitListener(queues = OrderMessagingConstants.PROCESS_QUEUE)
 public void process(String orderId) {
     try {
-        fullfilmentService.fulfillOrder(orderId);
+        fulfillmentService.fulfillOrder(orderId);
         orderUpdateService.changeOrderState(UUID.fromString(orderId), OrderStatus.COMPLETED);
         logger.info("Order id: " + orderId + " COMPLETED");
     } catch (FulfillmentException e) {
@@ -210,7 +210,7 @@ SELECT status, COUNT(*) FROM orders GROUP BY status;
 Pending orders have corresponding messages stuck in `orders.dlq.queue`.
 
 **PS: The amount of pending can be slightly different, because the fulfillment service is not deterministic. Each 
-execution has 50% of probability of failure.**
+execution has a 50% of probability of failure.**
 
 
 ### 4. Review RabbitMQ Configuration

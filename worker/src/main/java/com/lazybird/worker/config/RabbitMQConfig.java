@@ -15,13 +15,11 @@ import com.lazybird.common.messaging.OrderMessagingConstants;
 @Configuration
 public class RabbitMQConfig {
 
-    // Exchange
     @Bean
     public DirectExchange ordersExchange() {
         return new DirectExchange(OrderMessagingConstants.ORDERS_EXCHANGE, true, false);
     }
 
-    // Process Queue
     @Bean
     public Queue processQueue() {
         return QueueBuilder.durable(OrderMessagingConstants.PROCESS_QUEUE)
@@ -30,14 +28,12 @@ public class RabbitMQConfig {
                 .build();
     }
 
-    // Dead Letter Queue (final resting place for failed messages)
     @Bean
     public Queue deadLetterQueue() {
         return QueueBuilder.durable(OrderMessagingConstants.DLQ_QUEUE)
                 .build();
     }
 
-    // Bindings
     @Bean
     public Binding processBinding() {
         return BindingBuilder.bind(processQueue())
@@ -56,7 +52,7 @@ public class RabbitMQConfig {
     public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
-        factory.setDefaultRequeueRejected(false); // Don't requeue - send to DLX/DLQ instead
+        factory.setDefaultRequeueRejected(false);
         return factory;
     }
 

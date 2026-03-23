@@ -12,7 +12,7 @@ import com.lazybird.worker.exceptions.FulfillmentException;
 public class FulfillmentService {
 
     private static final Logger log = LoggerFactory.getLogger(FulfillmentService.class);
-    private final Random random = new Random();
+    private static final Random random = new Random();
 
     public void fulfillOrder(String orderId) {
         log.info("Attempting to fulfill order: {}", orderId);

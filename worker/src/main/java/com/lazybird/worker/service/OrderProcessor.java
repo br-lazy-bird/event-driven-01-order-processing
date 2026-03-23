@@ -30,7 +30,7 @@ public class OrderProcessor {
             orderUpdateService.changeOrderState(UUID.fromString(orderId), OrderStatus.COMPLETED);
             logger.info("Order id: {} COMPLETED", orderId);
         } catch (FulfillmentException e) {
-            logger.error("Fulfillment failed for order: {}, sending to DLQ", orderId);
+            logger.error("Fulfillment failed for order: {}", orderId);
             throw e;
         }
 
