@@ -14,10 +14,11 @@ const description = (
   <div className="dialogue">
     <img src="/lazy-bird.png" alt="Lazy Bird" className="mascot-icon" />
     <p>
-      "Hey, so I built this order processing system, and most orders complete just fine! But then... some of them
-      get stuck in PENDING forever. Just sitting there. Waiting. I started looking into it, but debugging
-      distributed systems before my afternoon nap? Yeah, not happening. Could you help me figure out what's going
-      on with the stuck ones? You can place some orders to see the issue yourself."
+      "Hey... so I built this order processing system with RabbitMQ and everything! Orders go in, workers process
+      them, most complete just fine. But then... some of them just sit there in PENDING forever. They don't complete,
+      they don't fail, they just... exist. I started digging into the message queues but there's like, a lot of
+      configuration, and I found this really comfortable branch to perch on, so... could you figure out what's
+      happening? Place some orders and see for yourself. Thanks!"
     </p>
   </div>
 );

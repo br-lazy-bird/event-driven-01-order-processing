@@ -158,9 +158,8 @@ public SimpleRabbitListenerContainerFactory rabbitListenerContainerFactory(Conne
 
 ### Further Reading
 
+- [Microservices Patterns: Messaging](https://microservices.io/patterns/communication-style/messaging.html)
 - [RabbitMQ Dead Letter Exchanges Documentation](https://www.rabbitmq.com/docs/dlx)
-- [Spring AMQP Reference](https://docs.spring.io/spring-amqp/reference/amqp/resilience-recovering-from-errors-and-broker-failures.html)
-- [Microservices Patterns: Messaging](https://microservices.io/patterns/data/transactional-outbox.html)
 
 ---
 
@@ -183,7 +182,7 @@ Messages enter `orders.dlq.queue` but never leave. This confirms no consumer is 
 ### 2. Inspect Worker Logs
 
 ```bash
-docker logs order_processing_worker
+docker logs -f order_processing_worker
 ```
 
 **What to look for:**
@@ -210,15 +209,11 @@ SELECT status, COUNT(*) FROM orders GROUP BY status;
 
 Pending orders have corresponding messages stuck in `orders.dlq.queue`.
 
-### 4. Search for DLQ Consumer Code
+**PS: The amount of pending can be slightly different, because the fulfillment service is not deterministic. Each 
+execution has 50% of probability of failure.**
 
-```bash
-grep -r "orders.dlq" worker/src/
-```
 
-**Result:** Only found in RabbitMQConfig, NOT in any consumer/processor class. This confirms the DLQ consumer is missing.
-
-### 5. Review RabbitMQ Configuration
+### 4. Review RabbitMQ Configuration
 
 Check `worker/src/main/java/com/lazybird/worker/config/RabbitMQConfig.java`:
 
@@ -282,11 +277,11 @@ public class DLQProcessor {
     private static final Logger logger = LoggerFactory.getLogger(DLQProcessor.class);
     private static final int MAX_RETRIES = 3;
 
-    private final FullfilmentService fullfilmentService;
+    private final FulfillmentService fulfillmentService;
     private final OrderUpdateService orderUpdateService;
 
-    public DLQProcessor(FullfilmentService fullfilmentService, OrderUpdateService orderUpdateService) {
-        this.fullfilmentService = fullfilmentService;
+    public DLQProcessor(FulfillmentService fulfillmentService, OrderUpdateService orderUpdateService) {
+        this.fulfillmentService = fulfillmentService;
         this.orderUpdateService = orderUpdateService;
     }
 
@@ -309,7 +304,7 @@ public class DLQProcessor {
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
                 logger.info("Retry attempt {}/{} for order: {}", attempt, MAX_RETRIES, orderId);
-                fullfilmentService.fulfillOrder(orderId);
+                fulfillmentService.fulfillOrder(orderId);
                 logger.info("Order {} fulfilled successfully on attempt {}", orderId, attempt);
                 return true;
             } catch (FulfillmentException e) {
@@ -341,21 +336,6 @@ public class DLQProcessor {
 
 4. **Simple Acknowledgment**: Uses Spring AMQP's default auto-acknowledgment (simpler than manual ack)
 
-### Step 2: Add FAILED Status to Order Entity
-
-Update `common/src/main/java/com/lazybird/common/model/Order.java`:
-
-```java
-public enum OrderStatus {
-    PENDING,
-    COMPLETED,
-    FAILED  // Add this
-}
-```
-
-Also update the worker's Order entity if you duplicated it:
-`worker/src/main/java/com/lazybird/worker/model/Order.java`
-
 ---
 
 ## Verification and Expected Results
@@ -370,25 +350,15 @@ make stop
 make build
 ```
 
+
+
 ### Step 2: Test the Fix
 
-1. Create batch orders:
-   ```bash
-   curl -X POST http://localhost:8000/api/orders/batch
-   ```
-
-2. Wait 15 seconds for processing and retries
-
-3. Check order statuses:
-   ```bash
-   curl http://localhost:8000/api/orders | jq '.[] | {id, status}'
-   ```
-
-**Expected Result:**
-- Some orders show `COMPLETED` (succeeded on first try)
-- Some orders show `COMPLETED` (succeeded after DLQ retry)
-- Some orders show `FAILED` (failed all retries)
-- **ZERO orders stuck in `PENDING`**
+1. Open the frontend: http://localhost:3000
+2. If there are remaining orders from the previous execution, press the Reset System button.
+3. Click "Place 10 Orders" to create a batch
+4. Wait 10-15 seconds and observe the statistics. See that after this period, you won't have any PENDING order 
+   because either they failed or succeeded. 
 
 ### Step 3: Verify DLQ Processing
 
@@ -409,43 +379,6 @@ Processing DLQ message for order: abc123
 Retry attempt 1/3 for order: abc123
 Order abc123 completed after DLQ retry
 ```
-
-### Step 4: Run Automated Tests
-
-```bash
-make test
-```
-
-The E2E test should pass, verifying:
-- Orders are created
-- Some complete successfully
-- Failed orders are processed (either completed after retry or marked FAILED)
-- No orders remain PENDING
-
-### Performance Improvement
-
-**Before Fix:**
-| Metric | Value |
-|--------|-------|
-| Orders COMPLETED | ~50% |
-| Orders PENDING | ~50% |
-| Orders FAILED | 0% |
-| DLQ messages | Accumulating |
-
-**After Fix:**
-| Metric | Value |
-|--------|-------|
-| Orders COMPLETED | ~87.5% (50% + 50%×75%) |
-| Orders PENDING | 0% |
-| Orders FAILED | ~12.5% (50%×25%) |
-| DLQ messages | 0 (all processed) |
-
-**Explanation:**
-- 50% succeed immediately
-- Of the 50% that fail initially, 75% succeed within 3 retries (0.5³ = 12.5% still fail all retries)
-- No orders remain stuck
-
----
 
 ## Success Criteria
 
@@ -482,7 +415,7 @@ dlq.backoff-ms=2000
 
 **2. Exponential Backoff**
 
-Improve backoff strategy:
+Improve backoff strategy to avoid retry storm:
 
 ```java
 long delay = backoffMs * (long) Math.pow(2, attempt - 1);

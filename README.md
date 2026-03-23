@@ -104,17 +104,15 @@ The system will:
 
 ## Meet the Lazy Bird
 
-The Lazy Bird team built an event-driven order processing system. Orders are created via REST API, published to RabbitMQ, and processed asynchronously by a worker service.
-
-When fulfillment succeeds, orders are marked as `COMPLETED`. But something's not quite right with the system...
-
-**The problem:** Some orders get stuck in `PENDING` status forever. They never complete, and they never fail. They just... sit there.
-
-Can you help the Lazy Bird figure out what's going wrong?
+> 🐦 The Lazy Bird is a peculiar creature. It has an exceptional talent for catching bugs... but absolutely zero motivation to fix them. You'll find it wandering around codebases, spotting issues, and then immediately looking for someone else to do the hard work.
+>
+> Today, it found you.
 
 ---
 
 ## The Problem
+
+> 🐦 "Hey... so I built this order processing system with RabbitMQ and everything! Orders go in, workers process them, most complete just fine. But then... some of them just sit there in PENDING forever. They don't complete, they don't fail, they just... exist. I started digging into the message queues but there's like, a lot of configuration, and I found this really comfortable branch to perch on, so... could you figure out what's happening? Place some orders and see for yourself. Thanks!"
 
 When you place orders in the system, you'll notice something strange:
 
